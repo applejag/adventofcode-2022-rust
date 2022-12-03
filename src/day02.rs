@@ -1,5 +1,13 @@
 use std::fs;
 use std::io::{self, prelude::*};
+use crate::day::Part;
+
+pub fn run(part: Part) {
+    match part {
+        Part::Part1 => part1(),
+        Part::Part2 => part2(),
+    }
+}
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 enum Move {
@@ -61,7 +69,7 @@ impl Outcome {
     }
 }
 
-pub fn part1() {
+fn part1() {
     let file_path = "inputs/day02.txt";
     println!("In file {}", file_path);
 
@@ -85,4 +93,8 @@ fn parse_moves(line: &str) -> (Move, Move) {
     let opponent_letter = line.chars().nth(0).unwrap();
     let your_letter = line.chars().nth(2).unwrap();
     (Move::parse(opponent_letter), Move::parse(your_letter))
+}
+
+fn part2() {
+    panic!("not yet implemented");
 }

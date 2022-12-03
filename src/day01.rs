@@ -1,7 +1,15 @@
 use std::fs;
 use std::io::{self, prelude::*};
+use crate::day::Part;
 
-pub fn part1() {
+pub fn run(part: Part) {
+    match part {
+        Part::Part1 => part1(),
+        Part::Part2 => part2(),
+    }
+}
+
+fn part1() {
     let file_path = "inputs/day01.txt";
     println!("In file {}", file_path);
 
@@ -30,7 +38,7 @@ pub fn part1() {
     println!("Biggest sum: {}", biggest_sum);
 }
 
-pub fn part2() {
+fn part2() {
     let file_path = "inputs/day01.txt";
     println!("In file {}", file_path);
 
