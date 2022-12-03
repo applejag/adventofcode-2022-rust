@@ -1,11 +1,11 @@
+use crate::day::Part;
 use std::fs;
 use std::io::{self, prelude::*};
-use crate::day::Part;
 
-pub fn run(part: Part) {
+pub fn run(part: Part, file_path: &str) {
     match part {
-        Part::Part1 => part1(),
-        Part::Part2 => part2(),
+        Part::Part1 => part1(file_path),
+        Part::Part2 => part2(file_path),
     }
 }
 
@@ -69,12 +69,8 @@ impl Outcome {
     }
 }
 
-fn part1() {
-    let file_path = "inputs/day02.txt";
-    println!("In file {}", file_path);
-
-    let file = fs::File::open(file_path)
-        .expect("Read the input file");
+fn part1(file_path: &str) {
+    let file = fs::File::open(file_path).expect("Read the input file");
     let reader = io::BufReader::new(file);
 
     let mut sum = 0;
@@ -95,6 +91,6 @@ fn parse_moves(line: &str) -> (Move, Move) {
     (Move::parse(opponent_letter), Move::parse(your_letter))
 }
 
-fn part2() {
+fn part2(_file_path: &str) {
     panic!("not yet implemented");
 }

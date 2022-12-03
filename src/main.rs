@@ -1,5 +1,5 @@
 use clap::Parser;
-use day::Part;
+use day::{Day, Part};
 
 mod day;
 mod day01;
@@ -11,8 +11,8 @@ struct Cli {
     #[command(flatten)]
     color: concolor_clap::Color,
 
-    #[arg(value_parser = clap::value_parser!(u32).range(1..24))]
-    day: u32,
+    #[arg(value_enum)]
+    day: Day,
 
     #[arg(value_enum, default_value_t = Part::Part1)]
     part: Part,
@@ -21,9 +21,12 @@ struct Cli {
 fn main() {
     let cli = Cli::parse();
 
+    let file_path = format!("inputs/{}.txt", cli.day);
+    println!(">>> {}, {}", cli.day, cli.part);
+    println!(">>> file: {}", file_path);
+
     match cli.day {
-        1 => day01::run(cli.part),
-        2 => day02::run(cli.part),
-        _ => panic!("Day not yet implemented")
+        Day::Day01 => day01::run(cli.part, &file_path),
+        Day::Day02 => day02::run(cli.part, &file_path),
     }
 }

@@ -1,20 +1,16 @@
+use crate::day::Part;
 use std::fs;
 use std::io::{self, prelude::*};
-use crate::day::Part;
 
-pub fn run(part: Part) {
+pub fn run(part: Part, file_path: &str) {
     match part {
-        Part::Part1 => part1(),
-        Part::Part2 => part2(),
+        Part::Part1 => part1(file_path),
+        Part::Part2 => part2(file_path),
     }
 }
 
-fn part1() {
-    let file_path = "inputs/day01.txt";
-    println!("In file {}", file_path);
-
-    let file = fs::File::open(file_path)
-        .expect("Read the input file");
+fn part1(file_path: &str) {
+    let file = fs::File::open(file_path).expect("Read the input file");
     let reader = io::BufReader::new(file);
 
     let mut lines = 0;
@@ -28,7 +24,7 @@ fn part1() {
                 biggest_sum = sum;
             }
             sum = 0;
-            continue
+            continue;
         }
         let value: i32 = line.parse().unwrap();
         sum += value;
@@ -38,12 +34,8 @@ fn part1() {
     println!("Biggest sum: {}", biggest_sum);
 }
 
-fn part2() {
-    let file_path = "inputs/day01.txt";
-    println!("In file {}", file_path);
-
-    let file = fs::File::open(file_path)
-        .expect("Read the input file");
+fn part2(file_path: &str) {
+    let file = fs::File::open(file_path).expect("Read the input file");
     let reader = io::BufReader::new(file);
 
     let mut lines = 0;
@@ -55,7 +47,7 @@ fn part2() {
         if line == "" {
             sums.push(sum);
             sum = 0;
-            continue
+            continue;
         }
         let value: i32 = line.parse().unwrap();
         sum += value;
@@ -67,5 +59,5 @@ fn part2() {
     println!("0: {}", sums[0]);
     println!("1: {}", sums[1]);
     println!("2: {}", sums[2]);
-    println!("Sum: {}",  sums[0] + sums[1] + sums[2]);
+    println!("Sum: {}", sums[0] + sums[1] + sums[2]);
 }
