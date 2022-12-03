@@ -4,6 +4,7 @@ use day::{Day, Part};
 mod day;
 mod day01;
 mod day02;
+mod day03;
 
 #[derive(Debug, clap::Parser)]
 #[clap(color = concolor_clap::color_choice())]
@@ -31,5 +32,6 @@ fn main() {
     match cli.day {
         Day::Day01 => day01::run(cli.part, &file_path),
         Day::Day02 => day02::run(cli.part, &file_path),
+        Day::Day03 => day03::run(cli.part, &file_path),
     }
 }

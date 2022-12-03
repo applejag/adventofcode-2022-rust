@@ -6,6 +6,7 @@ use clap::ValueEnum;
 pub enum Day {
     Day01,
     Day02,
+    Day03,
 }
 
 impl Display for Day {
