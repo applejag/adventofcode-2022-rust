@@ -7,7 +7,7 @@ This repo contains my attempt at Advent of Code 2022
 
 Requires Rust: <https://rustup.rs/>
 
-```sh
+```console
 $ cargo run -- day01
     Finished dev [unoptimized + debuginfo] target(s) in 0.03s
      Running `target/debug/adventofcode-2022-rust day01`
@@ -17,7 +17,7 @@ Lines: 2244
 Biggest sum: 66306
 ```
 
-```sh
+```console
 $ cargo run -- day01 part2
     Finished dev [unoptimized + debuginfo] target(s) in 0.03s
      Running `target/debug/adventofcode-2022-rust day01`
