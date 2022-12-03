@@ -67,6 +67,31 @@ impl Outcome {
             Outcome::Lose => 0,
         }
     }
+
+    fn try_parse(c: char) -> Option<Outcome> {
+        match c {
+            'X' => Some(Outcome::Lose),
+            'Y' => Some(Outcome::Draw),
+            'Z' => Some(Outcome::Win),
+            _ => None,
+        }
+    }
+
+    fn parse(c: char) -> Outcome {
+        Outcome::try_parse(c).expect("How could this happen to meeeee?")
+    }
+
+    fn calc_uour_move(&self, opponent: &Move) -> Move {
+        match (self, opponent) {
+            (Outcome::Win, Move::Rock) => Move::Paper,
+            (Outcome::Win, Move::Paper) => Move::Scissors,
+            (Outcome::Win, Move::Scissors) => Move::Rock,
+            (Outcome::Lose, Move::Rock) => Move::Scissors,
+            (Outcome::Lose, Move::Paper) => Move::Rock,
+            (Outcome::Lose, Move::Scissors) => Move::Paper,
+            (Outcome::Draw, _) => opponent.clone(),
+        }
+    }
 }
 
 fn part1(file_path: &str) {
@@ -91,6 +116,24 @@ fn parse_moves(line: &str) -> (Move, Move) {
     (Move::parse(opponent_letter), Move::parse(your_letter))
 }
 
-fn part2(_file_path: &str) {
-    panic!("not yet implemented");
+fn parse_part2_codes(line: &str) -> (Move, Outcome) {
+    let opponent_letter = line.chars().nth(0).unwrap();
+    let outcome_letter = line.chars().nth(2).unwrap();
+    (Move::parse(opponent_letter), Outcome::parse(outcome_letter))
+}
+
+fn part2(file_path: &str) {
+    let file = fs::File::open(file_path).expect("Read the input file");
+    let reader = io::BufReader::new(file);
+
+    let mut sum = 0;
+    for line in reader.lines().map(|l| l.unwrap()) {
+        let (opponent, outcome) = parse_part2_codes(&line);
+
+        let your = outcome.calc_uour_move(&opponent);
+        let score = your.shape_score() + outcome.outcome_score();
+        sum += score;
+    }
+
+    println!("Total score: {}", sum);
 }
