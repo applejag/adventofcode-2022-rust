@@ -20,7 +20,7 @@ Biggest sum: 66306
 ```console
 $ cargo run -- day01 part2
     Finished dev [unoptimized + debuginfo] target(s) in 0.03s
-     Running `target/debug/adventofcode-2022-rust day01`
+     Running `target/debug/adventofcode-2022-rust day01 part2`
 >>> day01, part2
 >>> file: inputs/day01.txt
 Lines: 2244
