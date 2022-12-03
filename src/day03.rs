@@ -1,4 +1,5 @@
 use crate::day::Part;
+use std::collections::HashSet;
 use std::fs;
 use std::io::{self, prelude::*};
 
@@ -53,8 +54,46 @@ fn part2(file_path: &str) {
     let file = fs::File::open(file_path).expect("Read the input file");
     let reader = io::BufReader::new(file);
 
-    for _line in reader.lines().map(|l| l.unwrap()) {
+    let mut lines_iter = reader.lines().map(|l| l.unwrap());
+    let mut sum = 0;
+    let mut count = 0;
+    loop {
+        match lines_iter.next() {
+            None => break,
+            Some(a) => {
+                let b = lines_iter.next().unwrap();
+                let c = lines_iter.next().unwrap();
+                match find_common_3(&a,&b,&c) {
+                    Some(c) => {
+                        sum += letter_score(c);
+                        count += 1;
+                    },
+                    None => {
+                        panic!("No common letter found in group:\n  a: {}\n  b: {}\n  c: {}", a, b, c);
+                    }
+                }
+            },
+        }
     }
+
+    println!("Groups: {}", count);
+    println!("Grouped badges prio score sum: {}", sum);
+}
+
+fn find_common_3(a: &str, b: &str, c: &str) -> Option<char> {
+    let a_set: HashSet<_> = a.chars().collect();
+    let b_set: HashSet<_> = b.chars().collect();
+    let c_set: HashSet<_> = c.chars().collect();
+    let a_and_b = a_set
+        .intersection(&b_set)
+        .cloned()
+        .collect::<HashSet<char>>();
+
+    let intersection = a_and_b .intersection(&c_set);
+    for c in intersection {
+        return Some(c.clone());
+    }
+    None
 }
 
 #[cfg(test)]
