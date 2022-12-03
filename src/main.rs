@@ -16,12 +16,15 @@ struct Cli {
 
     #[arg(value_enum, default_value_t = Part::Part1)]
     part: Part,
+
+    #[arg(short, long)]
+    file: Option<String>,
 }
 
 fn main() {
     let cli = Cli::parse();
 
-    let file_path = format!("inputs/{}.txt", cli.day);
+    let file_path = cli.file.unwrap_or(format!("inputs/{}.txt", cli.day));
     println!(">>> {}, {}", cli.day, cli.part);
     println!(">>> file: {}", file_path);
 
