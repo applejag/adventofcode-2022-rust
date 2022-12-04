@@ -17,7 +17,7 @@ fn part1(file_path: &str) {
     let mut contain_count = 0;
 
     for line in reader.lines().map(|l| l.unwrap()) {
-            lines_count += 1;
+        lines_count += 1;
 
         let (a, b) = try_parse_2_ranges(&line).expect("Failed to parse line");
         let any_contains = a.contains(&b) || b.contains(&a);
@@ -50,7 +50,15 @@ impl Range {
     }
 
     fn contains(&self, other: &Range) -> bool {
-        return self.from <= other.from && self.to >=other.to;
+        return self.from <= other.from && self.to >= other.to;
+    }
+
+    fn contains_point(&self, point: i32) -> bool {
+        return point >= self.from && point <= self.to;
+    }
+
+    fn contains_border(&self, other: &Range) -> bool {
+        return self.contains_point(other.from) || self.contains_point(other.to);
     }
 }
 
@@ -65,7 +73,22 @@ fn part2(file_path: &str) {
     let file = fs::File::open(file_path).expect("Read the input file");
     let reader = io::BufReader::new(file);
 
-    for _line in reader.lines().map(|l| l.unwrap()) {}
+    let mut lines_count = 0;
+    let mut overlaps_count = 0;
+
+    for line in reader.lines().map(|l| l.unwrap()) {
+        lines_count += 1;
+
+        let (a, b) = try_parse_2_ranges(&line).expect("Failed to parse line");
+        let overlaps = a.contains_border(&b) || b.contains_border(&a);
+
+        if overlaps {
+            overlaps_count += 1;
+        }
+    }
+
+    println!("Lines count: {}", lines_count);
+    println!("Count where they overlap: {}", overlaps_count);
 }
 
 #[cfg(test)]
