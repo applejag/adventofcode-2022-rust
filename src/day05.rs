@@ -96,10 +96,51 @@ fn part2(file_path: &str) {
     let file = fs::File::open(file_path).expect("Read the input file");
     let reader = io::BufReader::new(file);
 
+    let mut lines_iter = reader.lines().map(|l| l.unwrap()).into_iter();
+
+    // skip the header
+    loop {
+        match lines_iter.next() {
+            Some(a) if a == "" => break,
+            None => break,
+            _ => (),
+        }
+    }
+
+    let mut stacks = get_start_stacks();
+    let move_regex = regex::Regex::new(r"move (\d+) from (\d+) to (\d+)").unwrap();
+    // move 3 from 9 to 7
+
     let mut lines_count = 0;
-    for _line in reader.lines().map(|l| l.unwrap()) {
+    for line in lines_iter {
         lines_count += 1;
+        let captures = move_regex.captures(&line).expect("Didn't match");
+        let count_match = captures.get(1).expect("No count");
+        let from_match = captures.get(2).expect("No from");
+        let to_match = captures.get(3).expect("No to");
+
+        let count = count_match.as_str().parse::<i32>().expect("Parse count");
+        let from = from_match.as_str().parse::<usize>().expect("Parse from");
+        let to = to_match.as_str().parse::<usize>().expect("Parse to");
+
+        let from_index = from - 1;
+        let to_index = to - 1;
+
+        let mut vec = vec![];
+        for _ in 1..=count {
+            let value = pop_from_index(&mut stacks, from_index);
+            vec.insert(0, value);
+        }
+        for value in vec {
+            push_to_index(&mut stacks, to_index, value);
+        }
     }
 
     println!("Lines count: {}", lines_count);
+    print!("Code: ");
+    for vec in stacks {
+        let value = vec.last().unwrap();
+        print!("{}", value);
+    }
+    println!();
 }
