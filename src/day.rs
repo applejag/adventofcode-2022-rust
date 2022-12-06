@@ -9,6 +9,7 @@ pub enum Day {
     Day03,
     Day04,
     Day05,
+    Day06,
 }
 
 impl Display for Day {
