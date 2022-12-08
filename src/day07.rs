@@ -1,16 +1,17 @@
 use crate::day::Part;
-use std::borrow::BorrowMut;
-use std::fs;
-use std::io::{self, prelude::*};
-use std::rc::Rc;
+//use std::borrow::BorrowMut;
+//use std::fs;
+//use std::io::{self, prelude::*};
+//use std::rc::Rc;
 
-pub fn run(part: Part, file_path: &str) {
-    match part {
-        Part::Part1 => part1(file_path),
-        Part::Part2 => part2(file_path),
-    }
+pub fn run(_part: Part, _file_path: &str) {
+    //match part {
+    //    Part::Part1 => part1(file_path),
+    //    Part::Part2 => part2(file_path),
+    //}
 }
 
+/*
 #[derive(Debug)]
 struct Dir {
     name: String,
@@ -85,7 +86,6 @@ fn part1(file_path: &str) {
     let reader = io::BufReader::new(file);
 
     let mut root = Dir::new_root();
-    let x = root.borrow_mut().get_or_add_dir("foo");
     let mut _fs = Filesystem::new(&mut root);
     let mut lines = 0;
     for _line in reader.lines().map(|l| l.unwrap()) {
@@ -106,3 +106,4 @@ fn part2(file_path: &str) {
 
     println!("Lines: {}", lines);
 }
+*/
