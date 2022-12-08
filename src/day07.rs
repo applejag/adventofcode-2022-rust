@@ -1,98 +1,140 @@
 use crate::day::Part;
-//use std::borrow::BorrowMut;
-//use std::fs;
-//use std::io::{self, prelude::*};
-//use std::rc::Rc;
+use std::fs;
+use std::io::{self, prelude::*};
+use std::slice::Iter;
 
-pub fn run(_part: Part, _file_path: &str) {
-    //match part {
-    //    Part::Part1 => part1(file_path),
-    //    Part::Part2 => part2(file_path),
-    //}
+pub fn run(part: Part, file_path: &str) {
+    match part {
+        Part::Part1 => part1(file_path),
+        Part::Part2 => part2(file_path),
+    }
 }
 
-/*
-#[derive(Debug)]
-struct Dir {
-    name: String,
-    files: Vec<File>,
-    dirs: Vec<Rc<Dir>>,
+#[derive(Debug, Clone)]
+struct Command {
+    exe: String,
+    arg: Option<String>,
+    output_lines: Vec<String>,
 }
 
-impl Dir {
-    fn new_root() -> Rc<Self> {
-        Self::new("/")
+impl Command {
+    fn new() -> Self {
+        Self {
+            exe: "".to_string(),
+            arg: None,
+            output_lines: vec![],
+        }
     }
+}
 
-    fn new(name: &str) -> Rc<Self> {
-        Rc::new(Self { name: name.to_string(), files: vec![], dirs: vec![] })
-    }
+fn parse_commands(file_path: &str) -> Vec<Command> {
+    let file = fs::File::open(file_path).expect("Read the input file");
+    let reader = io::BufReader::new(file);
 
-    fn get_dir(&self, name: &str) -> Option<Rc<Dir>> {
-        for dir in &self.dirs {
-            if dir.name == name {
-                return Some(dir.clone());
+    let mut commands = vec![];
+    let mut current = Command::new();
+    let mut lines = 0;
+    for line in reader.lines().map(|l| l.unwrap()) {
+        if line.starts_with("$ ") {
+            if lines > 0 {
+                commands.push(current.clone());
+                current = Command::new();
             }
+            let full_command = line.strip_prefix("$ ").unwrap();
+            match full_command.split_once(' ') {
+                Some((exe, arg)) => {
+                    current.exe = exe.to_string();
+                    current.arg = Some(arg.to_string());
+                }
+                None => {
+                    current.exe = full_command.to_string();
+                }
+            }
+        } else {
+            current.output_lines.push(line);
         }
-        None
+        lines += 1;
     }
 
-    fn get_or_add_dir(&mut self, name: &str) -> Rc<Dir> {
-        match self.get_dir(name) {
-            Some(dir) => dir,
-            None => {
-                let dir = Dir::new(name);
-                self.dirs.push(dir.clone());
-                dir
-            },
-        }
-    }
+    commands.push(current);
 
-    fn add_file(&mut self, file: File) {
-        self.files.push(file);
-    }
+    println!("Lines: {}", lines);
+    println!("Commands: {}", commands.len());
+    commands
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
-struct File {
+#[derive(Debug, Clone)]
+struct Dir {
     name: String,
     size: u64,
 }
 
-impl File {
-    fn new(name: String, size: u64) -> Self { Self { name, size } }
+impl Dir {
+    fn new(name: &str, size: u64) -> Self { Self { name: name.to_string(), size } }
 }
 
-#[derive(Debug)]
-struct Filesystem<'a> {
-    path_stack: Vec<Rc<Dir>>,
-    path_head: Rc<Dir>,
-    root: &'a mut Rc<Dir>,
+fn calc_sizes_of_dirs(commands: Vec<Command>) -> Vec<Dir> {
+    let mut iter = commands.iter();
+    let mut all_dirs = vec![];
+    calc_sizes_of_dirs_rec(&mut iter, &mut all_dirs, "/");
+    return all_dirs;
 }
 
-impl<'a> Filesystem<'a> {
-    fn new(root: &'a mut Rc<Dir>) -> Self {
-        Self { path_stack: vec![], path_head: root.clone(), root}
-    }
-
-    fn cd(&mut self, name: &str) -> Rc<Dir> {
-        let x = self.root.get_or_add_dir(name);
-        x
+fn calc_sizes_of_dirs_rec(iter: &mut Iter<Command>, all_dirs: &mut Vec<Dir>, name: &str) -> u64 {
+    let mut sum = 0;
+    loop {
+        match iter.next() {
+            Some(cmd) => match (cmd.exe.as_str(), cmd.arg.as_ref().map(|s| s.as_str())) {
+                ("cd", Some("..")) => {
+                    println!("{} $ cd ..", name);
+                    all_dirs.push(Dir::new(name, sum));
+                    return sum;
+                }
+                ("cd", Some(dir)) => {
+                    let new_name = match (name, dir) {
+                        ("/", "/") => "/".to_string(),
+                        ("/", dir) => format!("/{}", dir),
+                        (name, dir) => format!("{}/{}", name, dir),
+                    };
+                    println!("{} $ cd {}", name, dir);
+                    sum += calc_sizes_of_dirs_rec(iter, all_dirs, &new_name);
+                }
+                ("ls", None) => {
+                    for line in &cmd.output_lines {
+                        if line.starts_with("dir ") {
+                            continue;
+                        }
+                        match line.split_once(' ') {
+                            Some((size_str, _)) => {
+                                let size_num: u64 = size_str.parse().unwrap();
+                                sum += size_num;
+                            }
+                            None => continue,
+                        }
+                    }
+                }
+                _ => panic!("Unknown command and argument: {} {:?}", cmd.exe, cmd.arg),
+            },
+            None => {
+                all_dirs.push(Dir::new(name, sum));
+                return sum;
+            }
+        };
     }
 }
 
 fn part1(file_path: &str) {
-    let file = fs::File::open(file_path).expect("Read the input file");
-    let reader = io::BufReader::new(file);
+    let commands = parse_commands(file_path);
 
-    let mut root = Dir::new_root();
-    let mut _fs = Filesystem::new(&mut root);
-    let mut lines = 0;
-    for _line in reader.lines().map(|l| l.unwrap()) {
-        lines += 1;
+    let all_dirs = calc_sizes_of_dirs(commands);
+    let mut sum = 0;
+    for dir in all_dirs {
+        if dir.size <= 100000 {
+            println!("Dir is small enough: {}\t{}", dir.name, dir.size);
+            sum += dir.size;
+        }
     }
-
-    println!("Lines: {}", lines);
+    println!("Sum of sizes: {}", sum);
 }
 
 fn part2(file_path: &str) {
@@ -106,4 +148,3 @@ fn part2(file_path: &str) {
 
     println!("Lines: {}", lines);
 }
-*/
