@@ -138,13 +138,33 @@ fn part1(file_path: &str) {
 }
 
 fn part2(file_path: &str) {
-    let file = fs::File::open(file_path).expect("Read the input file");
-    let reader = io::BufReader::new(file);
+    let commands = parse_commands(file_path);
 
-    let mut lines = 0;
-    for _line in reader.lines().map(|l| l.unwrap()) {
-        lines += 1;
+    let all_dirs = calc_sizes_of_dirs(commands);
+
+    let storage_total = 70000000;
+    let storage_used = all_dirs.iter().find(|dir| dir.name == "/").unwrap().size;
+    let storage_avail = storage_total - storage_used;
+    let storage_avail_goal = 30000000;
+    let storage_to_remove = storage_avail_goal - storage_avail;
+
+    println!("Storage size:        {}", storage_total);
+    println!("Storage used:        {}", storage_used);
+    println!("Available:           {}", storage_avail);
+    println!("Target availability: {}", storage_avail_goal);
+    println!("Minimum to remove:   {}", storage_to_remove);
+
+    let mut smallest_candidate: Option<Dir> = None;
+    for dir in all_dirs {
+        if dir.size < storage_to_remove {
+            continue;
+        }
+        match smallest_candidate {
+            None => smallest_candidate = Some(dir),
+            Some(small) if dir.size < small.size => smallest_candidate = Some(dir),
+            _ => (),
+        }
     }
 
-    println!("Lines: {}", lines);
+    println!("Smallest to remove: {:?}", smallest_candidate.unwrap());
 }
