@@ -136,14 +136,23 @@ fn part1(file_path: &str) {
 
 fn part2(file_path: &str) {
     let ops = Op::read_ops_from_file(file_path).expect("Read ops from input file");
-    let vm = VM::new(ops);
+    let mut vm = VM::new(ops);
+
+    for state in &mut vm {
+        let sprite_pos = state.x;
+        let cursor_x = state.cycle % 40;
+        if cursor_x >= sprite_pos && cursor_x <= sprite_pos + 2 {
+            print!("#");
+        } else {
+            print!(".");
+        }
+        if cursor_x == 0 {
+            println!();
+        }
+    }
 
     println!("VM state: {:?}", vm.state);
 }
-
-// noop
-// addx 3
-// addx -5
 
 #[cfg(test)]
 mod tests {
