@@ -87,13 +87,17 @@ impl Point {
             (2, 0) => self.x = other.x - sx,
             (1, 2) => {
                 self.y = other.y - sy;
-                self.x = other.x
+                self.x = other.x;
             }
             (2, 1) => {
                 self.x = other.x - sx;
-                self.y = other.y
+                self.y = other.y;
             }
-            _ => panic!("woa too big diff"),
+            (2, 2) => {
+                self.x = other.x - sx;
+                self.y = other.y - sy;
+            }
+            _ => panic!("woa too big diff: {}, {}", dx, dy),
         }
     }
 
@@ -126,6 +130,65 @@ fn count_unique_tail_points(moves: Vec<Move>) -> usize {
     tail_points.len()
 }
 
+struct Rope {
+    head: Point,
+    tail1: Point,
+    tail2: Point,
+    tail3: Point,
+    tail4: Point,
+    tail5: Point,
+    tail6: Point,
+    tail7: Point,
+    tail8: Point,
+    tail9: Point,
+}
+
+impl Rope {
+    fn new() -> Self {
+        Self {
+            head: Point::new(0, 0),
+            tail1: Point::new(0, 0),
+            tail2: Point::new(0, 0),
+            tail3: Point::new(0, 0),
+            tail4: Point::new(0, 0),
+            tail5: Point::new(0, 0),
+            tail6: Point::new(0, 0),
+            tail7: Point::new(0, 0),
+            tail8: Point::new(0, 0),
+            tail9: Point::new(0, 0),
+        }
+    }
+
+    fn mv_head(&mut self, dir: Direction) {
+        self.head.mv(dir);
+        self.tail1.follow(&self.head);
+        self.tail2.follow(&self.tail1);
+        self.tail3.follow(&self.tail2);
+        self.tail4.follow(&self.tail3);
+        self.tail5.follow(&self.tail4);
+        self.tail6.follow(&self.tail5);
+        self.tail7.follow(&self.tail6);
+        self.tail8.follow(&self.tail7);
+        self.tail9.follow(&self.tail8);
+    }
+}
+
+fn count_unique_tail_points_rope(moves: Vec<Move>) -> usize {
+    let mut rope = Rope::new();
+    let mut tail_points = vec![rope.tail9];
+
+    for mv in moves {
+        for _ in 0..mv.steps {
+            rope.mv_head(mv.dir);
+            if !tail_points.contains(&rope.tail9) {
+                tail_points.push(rope.tail9);
+            }
+        }
+    }
+
+    tail_points.len()
+}
+
 fn part1(file_path: &str) {
     let file = fs::File::open(file_path).expect("Read the input file");
     let reader = io::BufReader::new(file);
@@ -145,12 +208,15 @@ fn part2(file_path: &str) {
     let file = fs::File::open(file_path).expect("Read the input file");
     let reader = io::BufReader::new(file);
 
-    let mut lines = 0;
-    for _line in reader.lines().map(|l| l.unwrap()) {
-        lines += 1;
+    let mut moves = vec![];
+    for line in reader.lines().map(|l| l.unwrap()) {
+        let mv = Move::try_parse(&line).unwrap();
+        moves.push(mv);
     }
 
-    println!("Lines: {}", lines);
+    let tail_points_count = count_unique_tail_points_rope(moves);
+
+    println!("Unique tail points: {}", tail_points_count);
 }
 
 #[cfg(test)]
