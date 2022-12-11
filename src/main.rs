@@ -10,6 +10,7 @@ mod day05;
 mod day06;
 mod day07;
 mod day08;
+mod day09;
 
 #[derive(Debug, clap::Parser)]
 #[clap(color = concolor_clap::color_choice())]
@@ -43,5 +44,6 @@ fn main() {
         Day::Day06 => day06::run(cli.part, &file_path),
         Day::Day07 => day07::run(cli.part, &file_path),
         Day::Day08 => day08::run(cli.part, &file_path),
+        Day::Day09 => day09::run(cli.part, &file_path),
     }
 }
