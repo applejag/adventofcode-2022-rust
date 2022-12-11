@@ -91,6 +91,59 @@ impl Grid {
         }
         visible_count
     }
+
+    fn scenic_score(&self, x: usize, y: usize) -> usize {
+        let tree_height = self.get_tree_height(x, y);
+        self.scenic_score_x_range(tree_height, (0..x).rev(), y)
+            * self.scenic_score_x_range(tree_height, (x + 1)..self.width, y)
+            * self.scenic_score_y_range(tree_height, x, (0..y).rev())
+            * self.scenic_score_y_range(tree_height, x, (y + 1)..self.height)
+    }
+
+    fn scenic_score_x_range<T: IntoIterator<Item = usize>>(
+        &self,
+        tree_height: u8,
+        x_range: T,
+        y: usize,
+    ) -> usize {
+        let mut count = 0;
+        for new_x in x_range {
+            count += 1;
+            if self.get_tree_height(new_x, y) >= tree_height {
+                break;
+            }
+        }
+        return count;
+    }
+
+    fn scenic_score_y_range<T: IntoIterator<Item = usize>>(
+        &self,
+        tree_height: u8,
+        x: usize,
+        y_range: T,
+    ) -> usize {
+        let mut count = 0;
+        for new_y in y_range {
+            count += 1;
+            if self.get_tree_height(x, new_y) >= tree_height {
+                break;
+            }
+        }
+        return count;
+    }
+
+    fn highest_scenic_score(&self) -> usize {
+        let mut highest_score = 0;
+        for x in 0..self.width {
+            for y in 0..self.height {
+                let score = self.scenic_score(x, y);
+                if score > highest_score {
+                    highest_score = score;
+                }
+            }
+        }
+        highest_score
+    }
 }
 
 impl Debug for Grid {
@@ -104,7 +157,6 @@ impl Debug for Grid {
 
 fn part1(file_path: &str) {
     let grid = Grid::read(file_path);
-
     let visible_count = grid.visible_trees_count();
 
     println!("Grid: {:?}", grid);
@@ -112,15 +164,11 @@ fn part1(file_path: &str) {
 }
 
 fn part2(file_path: &str) {
-    let file = fs::File::open(file_path).expect("Read the input file");
-    let reader = io::BufReader::new(file);
+    let grid = Grid::read(file_path);
+    let highest_score = grid.highest_scenic_score();
 
-    let mut lines = 0;
-    for _line in reader.lines().map(|l| l.unwrap()) {
-        lines += 1;
-    }
-
-    println!("Lines: {}", lines);
+    println!("Grid: {:?}", grid);
+    println!("Highest scenic score: {}", highest_score);
 }
 
 #[cfg(test)]
@@ -158,5 +206,11 @@ mod tests {
     fn test_visible_trees_count() {
         let grid = example_grid();
         assert_eq!(grid.visible_trees_count(), 21);
+    }
+
+    #[test]
+    fn test_highest_scenic_score() {
+        let grid = example_grid();
+        assert_eq!(grid.highest_scenic_score(), 8);
     }
 }
